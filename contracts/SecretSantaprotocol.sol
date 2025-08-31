@@ -190,6 +190,57 @@ contract SecretSantaProtocol is ReentrancyGuard, Ownable {
         emit GiftClaimed(exchangeId, msg.sender, finalReward, bonus);
     }
 
+    /**
+     * @notice Batch-claim gifts from multiple exchanges in one transaction.
+     * @dev Aggregates final rewards across provided exchangeIds and performs a single transfer to save gas.
+     *      For each exchange, the same validation rules as single `claimGift` apply:
+     *        - Caller must be participant
+     *        - Exchange must be in Claiming state OR claimDeadline must have passed
+     *        - Caller must have submitted a gift and not have already claimed
+     * @param exchangeIds Array of exchange IDs to claim rewards from.
+     */
+    function batchClaim(uint256[] calldata exchangeIds) external nonReentrant {
+        uint256 totalFinalPayout = 0;
+        uint256 len = exchangeIds.length;
+        require(len > 0, "No exchanges provided");
+
+        for (uint256 i = 0; i < len; ++i) {
+            uint256 exchangeId = exchangeIds[i];
+
+            // validate exchange id
+            if (exchangeId == 0 || exchangeId >= nextExchangeId) revert ExchangeNotFound();
+
+            Exchange storage exchange = exchanges[exchangeId];
+
+            // same claim validation logic as claimGift
+            if (exchange.state != ExchangeState.Claiming && block.timestamp <= exchange.claimDeadline) revert ClaimNotAllowed();
+            if (!participants[exchangeId][msg.sender]) revert NotParticipant();
+            if (hasClaimed[exchangeId][msg.sender]) revert ClaimNotAllowed();
+            if (!hasSubmittedGift[exchangeId][msg.sender]) revert ClaimNotAllowed();
+
+            // mark claimed immediately to prevent re-entrancy style reuse inside loop
+            hasClaimed[exchangeId][msg.sender] = true;
+
+            uint256 baseReward = exchange.giftAmount;
+            uint256 bonus = _calculateBonus(exchangeId, msg.sender);
+            uint256 totalReward = baseReward + bonus;
+
+            uint256 platformFee = (totalReward * PLATFORM_FEE) / 10000;
+            uint256 finalReward = totalReward - platformFee;
+
+            totalFinalPayout += finalReward;
+
+            emit GiftClaimed(exchangeId, msg.sender, finalReward, bonus);
+        }
+
+        require(totalFinalPayout > 0, "No payout available");
+
+        totalValueTransferred += totalFinalPayout;
+
+        (bool success, ) = payable(msg.sender).call{value: totalFinalPayout}("");
+        require(success, "Transfer failed");
+    }
+
     // ----------------------- Internal -----------------------
     function _registerParticipant(uint256 exchangeId, address participant, uint256 deposit) internal {
         Exchange storage exchange = exchanges[exchangeId];
@@ -267,4 +318,3 @@ contract SecretSantaProtocol is ReentrancyGuard, Ownable {
         revert("Function not found");
     }
 }
-
