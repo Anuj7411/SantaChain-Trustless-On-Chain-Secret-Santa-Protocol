@@ -15,6 +15,14 @@
     │  🎲 Provable   •  🛡️ Secure        │
     └─────────────────────────────────────┘
 ```
+## 📌 Latest Release
+The latest stable version is **v1.1.0** 🎉  
+👉 [Download here](https://github.com/Anuj7411/SantaChain-Trustless-On-Chain-Secret-Santa-Protocol/releases/tag/v1.1.0)
+
+### What's New in v1.1.0
+- Implemented `batchClaim` for multiple gift claims
+- Optimized gas usage
+- Reduced multiple transactions into one
 
 ## 🌟 Project Description
 
