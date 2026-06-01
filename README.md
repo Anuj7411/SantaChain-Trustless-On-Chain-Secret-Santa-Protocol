@@ -380,14 +380,6 @@ Perfect for:
 - ✅ Non-commercial community initiatives
 - ✅ Open source integrations
 
-### **🏢 Commercial License (Custom)**
-Required for:
-- 💼 Corporate implementations
-- 💰 Revenue-generating applications  
-- 🏭 Large-scale commercial deployments
-- 📈 White-label solutions
-
-**Contact:** licensing@santachain.org for commercial licensing discussions.
 
 ### **🌟 Why This Dual Approach?**
 
