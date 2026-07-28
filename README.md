@@ -31,7 +31,7 @@ Traditional Secret Santa exchanges fail at scale due to coordination nightmares,
 
 **SantaChain solves the impossible: truly anonymous, provably fair, globally accessible Secret Santa exchanges that work between complete strangers.**
 
-### 🎯 **The Problem we are Solving**
+### 🎯 **The Problem we're Solving**
 
 Current Secret Santa implementations suffer from critical flaws:
 - **Trust Dependencies**: Require centralized organizers who can manipulate outcomes
